@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.jobapp">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme.NoActionBar"
+        android:usesCleartextTraffic="true">
+        <activity
+            android:name=".Activity.ActAgrPublicacionActivity"
+            android:label="@string/title_activity_act_agr_publicacion"
+            android:theme="@style/AppTheme.NoActionBar.NoActionBar"></activity>
+        <activity
+            android:name=".Activity.LoginActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".Activity.EducacionActivity"
+            android:label="Mi Educación"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".Activity.NavDrawerActivity"
+            android:label="Menu"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activity.ActAgrEducacionActivity"
+            android:label="Educación"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".Activity.SkillsActivity"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".Activity.ActAgrSkillActivity"
+            android:label="@string/title_activity_act_agr_skill"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".Activity.ActAgrTrabajoActivity"
+            android:label="@string/title_activity_act_agr_trabajo"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".Activity.TrabajoActivity"
+            android:label="@string/title_activity_trabajo"
+            android:theme="@style/AppTheme" />
+    </application>
+
+</manifest>
