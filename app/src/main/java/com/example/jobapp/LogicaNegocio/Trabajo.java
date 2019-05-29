@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 public class Trabajo implements Serializable {
 
+    private int id;
     private String usuario;
     private String empresa;
     private String puesto;
@@ -12,6 +13,7 @@ public class Trabajo implements Serializable {
     private int anno_final;
 
     public Trabajo(){
+        this.id = 0;
         this.usuario = "";
         this.empresa = "";
         this.puesto = "";
@@ -27,6 +29,24 @@ public class Trabajo implements Serializable {
         this.descripcion = descripcion;
         this.anno_inicio = a_inicio;
         this.anno_final = a_final;
+    }
+
+    public Trabajo(int id, String usuario, String empresa, String puesto, String descripcion, int anno_inicio, int anno_final) {
+        this.id = id;
+        this.usuario = usuario;
+        this.empresa = empresa;
+        this.puesto = puesto;
+        this.descripcion = descripcion;
+        this.anno_inicio = anno_inicio;
+        this.anno_final = anno_final;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getUsuario(){  return usuario; }
@@ -55,12 +75,14 @@ public class Trabajo implements Serializable {
 
     @Override
     public String toString() {
-        return "Trabajo { " +
-                "usuario='" + usuario + '\'' +
+        return "Trabajo{" +
+                "id=" + id +
+                ", usuario='" + usuario + '\'' +
                 ", empresa='" + empresa + '\'' +
-                ", puesto=" + puesto +
+                ", puesto='" + puesto + '\'' +
                 ", descripcion='" + descripcion + '\'' +
-                ", año inicio='" + anno_inicio + '\'' +
-                ", año final='" + anno_final + '\'' + '}';
+                ", anno_inicio=" + anno_inicio +
+                ", anno_final=" + anno_final +
+                '}';
     }
 }

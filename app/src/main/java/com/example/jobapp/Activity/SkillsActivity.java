@@ -170,7 +170,7 @@ public class SkillsActivity extends AppCompatActivity
             if (aux == null) {
                 aux = (Skill) getIntent().getSerializableExtra("editarSkill");
                 if (aux != null) {
-                    apiUrlTemporal = apiUrl + "opc=4&id="+aux.getId()+"usuario="+aux.getUsuario()+"&nombre="+aux.getNombre()+"&descripcion="+aux.getDescripcion();
+                    apiUrlTemporal = apiUrl + "opc=4&id="+aux.getId()+"&usuario="+aux.getUsuario()+"&nombre="+aux.getNombre()+"&descripcion="+aux.getDescripcion();
                     MyAsyncTasks myAsyncTasks = new MyAsyncTasks();
                     myAsyncTasks.execute();
                     Toast.makeText(getApplicationContext(),  "Editado correctamente!", Toast.LENGTH_LONG).show();

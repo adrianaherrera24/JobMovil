@@ -171,7 +171,7 @@ public class EducacionActivity extends AppCompatActivity
             if (aux == null) {
                 aux = (Educacion) getIntent().getSerializableExtra("editarEducacion");
                 if (aux != null) {
-                    apiUrlTemporal = apiUrl + "opc=4&id="+aux.getId()+"usuario="+aux.getUsuario()+"&institucion="+aux.getInstitucion()+"&carrera="+aux.getCarrera()+"&titulo="+aux.getCarrera()+"&anno="+aux.getAnno();
+                    apiUrlTemporal = apiUrl + "opc=4&id="+aux.getId()+"&usuario="+aux.getUsuario()+"&institucion="+aux.getInstitucion()+"&carrera="+aux.getCarrera()+"&titulo="+aux.getCarrera()+"&anno="+aux.getAnno();
                     MyAsyncTasks myAsyncTasks = new MyAsyncTasks();
                     myAsyncTasks.execute();
                     Toast.makeText(getApplicationContext(),  "Editado correctamente!", Toast.LENGTH_LONG).show();

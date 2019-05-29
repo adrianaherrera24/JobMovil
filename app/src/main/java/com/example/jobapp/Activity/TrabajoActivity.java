@@ -1,7 +1,10 @@
 package com.example.jobapp.Activity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -13,6 +16,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,7 +26,13 @@ import com.example.jobapp.Adapter.TrabajoAdapter;
 import com.example.jobapp.Helper.RecyclerItemTouchHelper;
 import com.example.jobapp.LogicaNegocio.Trabajo;
 import com.example.jobapp.R;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +44,11 @@ public class TrabajoActivity extends AppCompatActivity
     private List<Trabajo> trabajoList;
     private CoordinatorLayout coordinatorLayout;
     private FloatingActionButton agregar;
-    //private ModeloDatos modelo;
+
+    String apiUrl = "http://192.168.1.12:8080/JobApp_Web/TrabajoServlet?";
+    String apiUrlTemporal = "";
+
+    String USER_ID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +57,6 @@ public class TrabajoActivity extends AppCompatActivity
 
         mRecyclerView = findViewById(R.id.recycler_trab);
         trabajoList = new ArrayList<>();
-        //modelo = new ModeloDatos();
-        //trabajoList = modelo.getTrabajoList();
         mAdapter = new TrabajoAdapter(trabajoList, this);
         coordinatorLayout = findViewById(R.id.coordinator_layout_trab);
 
@@ -53,6 +65,16 @@ public class TrabajoActivity extends AppCompatActivity
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         mRecyclerView.setAdapter(mAdapter);
+
+        //OBTIENE LOS DATOS DESDE EL MOMENTO DEL LOGIN
+        SharedPreferences prefs = this.getSharedPreferences(getString(R.string.preference_user_key), Context.MODE_PRIVATE);
+        String defaultValue = getResources().getString(R.string.preference_user_key_default);
+        USER_ID = prefs.getString("ID", defaultValue);
+
+        //LISTA LOS DATOS DEL USUARIO
+        apiUrlTemporal = apiUrl+"opc=1&usuario="+USER_ID;
+        MyAsyncTasks myAsyncTasks = new MyAsyncTasks();
+        myAsyncTasks.execute();
 
         // Boton
         agregar = findViewById(R.id.agregar_trabajo);
@@ -79,25 +101,18 @@ public class TrabajoActivity extends AppCompatActivity
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction, int position) {
         if (direction == ItemTouchHelper.START) {
             if (viewHolder instanceof TrabajoAdapter.MyViewHolder) {
-                // get the removed item name to display it in snack bar
-                String name = trabajoList.get(viewHolder.getAdapterPosition()).getEmpresa();
+                //SE OBTIENE EL ID DEL ELEMENTO PARA PODER ELIMINARLO
+                String id = String.valueOf(trabajoList.get(viewHolder.getAdapterPosition()).getId());
+
+                //CONECTA LA URL AL SERVLET PARA ELIMINAR PROFESOR
+                apiUrlTemporal = apiUrl + "opc=3&id="+id;
+                MyAsyncTasks myAsyncTasks = new MyAsyncTasks();
+                myAsyncTasks.execute();
 
                 // save the index deleted
                 final int deletedIndex = viewHolder.getAdapterPosition();
                 // remove the item from recyclerView
                 mAdapter.removeItem(viewHolder.getAdapterPosition());
-
-                // showing snack bar with Undo option
-                Snackbar snackbar = Snackbar.make(coordinatorLayout, name + " removido!", Snackbar.LENGTH_LONG);
-                snackbar.setAction("Deshacer", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        // undo is selected, restore the deleted item from adapter
-                        mAdapter.restoreItem(deletedIndex);
-                    }
-                });
-                snackbar.setActionTextColor(Color.YELLOW);
-                snackbar.show();
             }
         } else {
             //If is editing a row object
@@ -117,36 +132,7 @@ public class TrabajoActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds alumnoList to the action bar if it is present.
-       /* getMenuInflater().inflate(R.menu.menu_search, menu);
-
-        // Associate searchable configuration with the SearchView   !IMPORTANT
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        searchView = (SearchView) menu.findItem(R.id.action_search)
-                .getActionView();
-        searchView.setSearchableInfo(searchManager
-                .getSearchableInfo(getComponentName()));
-        searchView.setMaxWidth(Integer.MAX_VALUE);
-
-        // listening to search query text change, every type on input
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                // filter recycler view when query submitted
-                mAdapter.getFilter().filter(query);
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String query) {
-                // filter recycler view when text is changed
-                mAdapter.getFilter().filter(query);
-                return false;
-            }
-        });*/
-        return true;
-    }
+    public boolean onCreateOptionsMenu(Menu menu) { return true; }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -155,20 +141,11 @@ public class TrabajoActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        /*if (id == R.id.action_search) {
-            return true;
-        }*/
-
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onBackPressed() {
-      /*  if (!searchView.isIconified()) {
-            searchView.setIconified(true);
-            return;
-        }*/
         Intent a = new Intent(this, NavDrawerActivity.class);
         a.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(a);
@@ -188,29 +165,15 @@ public class TrabajoActivity extends AppCompatActivity
             if (aux == null) {
                 aux = (Trabajo) getIntent().getSerializableExtra("editarTrabajo");
                 if (aux != null) {
-                    //found an item that can be updated
-                    boolean founded = false;
-                    for (Trabajo trabajo : trabajoList) {
-                        if (trabajo.getUsuario().equals(aux.getUsuario())) {
-                            trabajo.setEmpresa(aux.getEmpresa());
-                            trabajo.setPuesto(aux.getPuesto());
-                            trabajo.setDescripcion(aux.getDescripcion());
-                            trabajo.setAnno_inicio(aux.getAnno_inicio());
-                            trabajo.setAnno_final(aux.getAnno_final());
-                            founded = true;
-                            break;
-                        }
-                    }
-                    //check if exist
-                    if (founded) {
-                        Toast.makeText(getApplicationContext(), "Editado correctamente!", Toast.LENGTH_LONG).show();
-                    } else {
-                        Toast.makeText(getApplicationContext(), "No encontrado!", Toast.LENGTH_LONG).show();
-                    }
+                    apiUrlTemporal = apiUrl + "opc=4&id="+aux.getId()+"&usuario="+aux.getUsuario()+"&empresa="+aux.getEmpresa()+"&puesto="+aux.getPuesto()+"&descripcion="+aux.getDescripcion()+"&ainicio="+aux.getAnno_inicio()+"&afinal="+aux.getAnno_final();
+                    MyAsyncTasks myAsyncTasks = new MyAsyncTasks();
+                    myAsyncTasks.execute();
+                    Toast.makeText(getApplicationContext(),  "Editado correctamente!", Toast.LENGTH_LONG).show();
                 }
             } else {
-                //found a new Alumno Object
-                trabajoList.add(aux);
+                apiUrlTemporal = apiUrl + "opc=2&id="+aux.getId()+"&usuario="+aux.getUsuario()+"&empresa="+aux.getEmpresa()+"&puesto="+aux.getPuesto()+"&descripcion="+aux.getDescripcion()+"&ainicio="+aux.getAnno_inicio()+"&afinal="+aux.getAnno_final();
+                MyAsyncTasks myAsyncTasks = new MyAsyncTasks();
+                myAsyncTasks.execute();
                 Toast.makeText(getApplicationContext(),  "Agregado correctamente!", Toast.LENGTH_LONG).show();
             }
         }
@@ -223,4 +186,86 @@ public class TrabajoActivity extends AppCompatActivity
         startActivity(intent);
     }
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    public class MyAsyncTasks extends AsyncTask<String, String, String> {
+
+
+        @Override
+        protected void onPreExecute() { }
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            // implement API in background and store the response in current variable
+            String current = "";
+            try {
+                URL url;
+                HttpURLConnection urlConnection = null;
+                try {
+                    url = new URL(apiUrlTemporal);
+
+                    urlConnection = (HttpURLConnection) url
+                            .openConnection();
+
+                    InputStream in = urlConnection.getInputStream();
+
+                    InputStreamReader isw = new InputStreamReader(in);
+
+                    int data = isw.read();
+                    while (data != -1) {
+                        current += (char) data;
+                        data = isw.read();
+
+                    }
+                    // return the data to onPostExecute method
+                    Log.w("JSON", current);
+                    return current;
+
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    if (urlConnection != null) {
+                        urlConnection.disconnect();
+                    }
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                return "Exception: " + e.getMessage();
+            }
+            return current;
+        }
+
+
+        @Override
+        protected void onPostExecute(String s) {
+            Log.w("miJSON", s);
+
+            try {
+                Gson gson = new Gson();
+                ArrayList<Trabajo> trabajoArrayList = (ArrayList<Trabajo>) gson.fromJson(s,
+                        new TypeToken<ArrayList<Trabajo>>() {
+                        }.getType());
+
+                trabajoList = trabajoArrayList;
+                mAdapter = new TrabajoAdapter(trabajoList, TrabajoActivity.this);
+                coordinatorLayout = findViewById(R.id.coordinator_layout_trab);
+
+                mRecyclerView = findViewById(R.id.recycler_trab);
+
+                RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+                mRecyclerView.setLayoutManager(mLayoutManager);
+                mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+                mRecyclerView.addItemDecoration(new DividerItemDecoration(TrabajoActivity.this, DividerItemDecoration.VERTICAL));
+                mRecyclerView.setAdapter(mAdapter);
+
+                Log.w("ArrayList",trabajoArrayList.toString());
+
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

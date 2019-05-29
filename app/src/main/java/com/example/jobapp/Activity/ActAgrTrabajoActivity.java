@@ -1,6 +1,8 @@
 package com.example.jobapp.Activity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -22,6 +24,8 @@ public class ActAgrTrabajoActivity extends AppCompatActivity {
     /* Datos requeridos para Carreras. */
     private EditText empresa, puesto, descripcion, anno_inicio, anno_final;
     private View activity;
+    String USER_ID;
+    int id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +50,11 @@ public class ActAgrTrabajoActivity extends AppCompatActivity {
         anno_inicio.setText("");
         anno_final.setText("");
 
+        //getting logged user
+        SharedPreferences prefs = this.getSharedPreferences(getString(R.string.preference_user_key), Context.MODE_PRIVATE);
+        String defaultValue = getResources().getString(R.string.preference_user_key_default);
+        USER_ID = prefs.getString("ID", defaultValue);
+
         //recibe informacion de admCarreraActivity
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -54,6 +63,7 @@ public class ActAgrTrabajoActivity extends AppCompatActivity {
             if (editable) {   // si su modo es de edicion
                 Trabajo aux = (Trabajo) getIntent().getSerializableExtra("trabajo");
                 // Completo los espacios con la información de cada carrera.
+                id = aux.getId();
                 empresa.setText(aux.getEmpresa());
                 puesto.setText(aux.getPuesto());
                 descripcion.setText(aux.getDescripcion());
@@ -81,7 +91,7 @@ public class ActAgrTrabajoActivity extends AppCompatActivity {
     public void agregarTrabajo() {
         if (validateForm()) {
             Trabajo trab = new Trabajo(
-                    "222",
+                    USER_ID,
                     empresa.getText().toString(),
                     puesto.getText().toString(),
                     descripcion.getText().toString(),
@@ -99,7 +109,8 @@ public class ActAgrTrabajoActivity extends AppCompatActivity {
     public void editarTrabajo() {
         if (validateForm()) {
             Trabajo trab = new Trabajo(
-                    "222",
+                    id,
+                    USER_ID,
                     empresa.getText().toString(),
                     puesto.getText().toString(),
                     descripcion.getText().toString(),
