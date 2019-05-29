@@ -1,6 +1,8 @@
 package com.example.jobapp.Activity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -17,11 +19,12 @@ import com.example.jobapp.R;
 public class ActAgrEducacionActivity extends AppCompatActivity {
 
     private FloatingActionButton ma_educacion;
-    private boolean editable = true; // Para  saber si es modo de edicion
+    private boolean editable = true;
 
-    /* Datos requeridos para Carreras. */
     private EditText institucion, carrera, titulo, anno;
     private View activity;
+    String USER_ID;
+    int id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +47,11 @@ public class ActAgrEducacionActivity extends AppCompatActivity {
         titulo.setText("");
         anno.setText("");
 
+        //getting logged user
+        SharedPreferences prefs = this.getSharedPreferences(getString(R.string.preference_user_key), Context.MODE_PRIVATE);
+        String defaultValue = getResources().getString(R.string.preference_user_key_default);
+        USER_ID = prefs.getString("ID", defaultValue);
+
         //recibe informacion de admCarreraActivity
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -52,6 +60,7 @@ public class ActAgrEducacionActivity extends AppCompatActivity {
             if (editable) {   // si su modo es de edicion
                 Educacion aux = (Educacion) getIntent().getSerializableExtra("educacion");
                 // Completo los espacios con la información de cada carrera.
+                id = aux.getId();
                 institucion.setText(aux.getInstitucion());
                 carrera.setText(aux.getCarrera());
                 titulo.setText(aux.getTitulo());
@@ -78,7 +87,7 @@ public class ActAgrEducacionActivity extends AppCompatActivity {
     public void agregarEducacion() {
         if (validateForm()) {
             Educacion edu = new Educacion(
-                    "222",
+                    USER_ID,
                     institucion.getText().toString(),
                     carrera.getText().toString(),
                     titulo.getText().toString(),
@@ -95,7 +104,8 @@ public class ActAgrEducacionActivity extends AppCompatActivity {
     public void editarEducacion() {
         if (validateForm()) {
             Educacion edu = new Educacion(
-                    "222",
+                    id,
+                    USER_ID,
                     institucion.getText().toString(),
                     carrera.getText().toString(),
                     titulo.getText().toString(),

@@ -26,12 +26,9 @@ import java.util.ArrayList;
 
 public class ActAgrSkillActivity extends AppCompatActivity {
 
-
-
     private FloatingActionButton ma_skill;
-    private boolean editable = true; // Para  saber si es modo de edicion
+    private boolean editable = true;
 
-    /* Datos requeridos para Carreras. */
     private EditText nombre, descripcion;
     private int id;
     private View activity;
@@ -96,12 +93,6 @@ public class ActAgrSkillActivity extends AppCompatActivity {
                     nombre.getText().toString(),
                     descripcion.getText().toString()
             );
-
-//            /// Para probar integracion
-//            apiUrlTemporal = apiUrl+"opc=2"+"&+id="+skill.getUsuario()+"&nombre="+skill.getNombre_skill()+"&descripcion="+skill.getDescripcion();
-//            MyAsyncTasks myAsyncTasks = new MyAsyncTasks();
-//            myAsyncTasks.execute();
-//            ///
             Intent intent = new Intent(getBaseContext(), SkillsActivity.class);
             intent.putExtra("agregarSkill", skill);
             startActivity(intent);
@@ -141,6 +132,4 @@ public class ActAgrSkillActivity extends AppCompatActivity {
         }
         return true;
     }
-
-
 }

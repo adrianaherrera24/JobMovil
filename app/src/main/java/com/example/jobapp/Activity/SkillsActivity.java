@@ -43,7 +43,6 @@ public class SkillsActivity extends AppCompatActivity
     private List<Skill> skillList;
     private CoordinatorLayout coordinatorLayout;
     private FloatingActionButton agregar;
-    //private ModeloDatos modelo;
 
     String apiUrl = "http://192.168.1.12:8080/JobApp_Web/SkillServlet?";
     String apiUrlTemporal = "";
@@ -66,17 +65,17 @@ public class SkillsActivity extends AppCompatActivity
         mRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         mRecyclerView.setAdapter(mAdapter);
 
-        //getting logged user
+        //OBTIENE LOS DATOS DESDE EL MOMENTO DEL LOGIN
         SharedPreferences prefs = this.getSharedPreferences(getString(R.string.preference_user_key), Context.MODE_PRIVATE);
         String defaultValue = getResources().getString(R.string.preference_user_key_default);
         USER_ID = prefs.getString("ID", defaultValue);
 
+        //LISTA LOS DATOS DEL USUARIO
         apiUrlTemporal = apiUrl+"opc=1&usuario="+USER_ID;
         MyAsyncTasks myAsyncTasks = new MyAsyncTasks();
         myAsyncTasks.execute();
 
-
-        // Boton
+        // BOTON PARA AGREGAR SKILLS
         agregar = findViewById(R.id.agregar_skill);
         agregar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -85,14 +84,14 @@ public class SkillsActivity extends AppCompatActivity
             }
         });
 
-        //delete swiping left and right
+        //SWIPE PARA BORRAR O EDITAR
         ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerItemTouchHelper(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT, this);
         new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(mRecyclerView);
 
-        // Receive the Carrera sent by AddUpdCarreraActivity
+        //RECIBE LOS DATOS DE SKILL ENVIADOS DESDE DONDE SE MODIFICA O AGREGA
         checkIntentInformation();
 
-        //refresh view
+        //SE REFRESCA LA VISTA
         mAdapter.notifyDataSetChanged();
     }
 
@@ -100,39 +99,33 @@ public class SkillsActivity extends AppCompatActivity
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction, int position) {
         if (direction == ItemTouchHelper.START) {
             if (viewHolder instanceof SkillsAdapter.MyViewHolder) {
-                // get the removed item name to display it in snack bar
-                String id = String.valueOf(skillList.get(viewHolder.getAdapterPosition()).getId());
-                String name = skillList.get(viewHolder.getAdapterPosition()).getNombre();
 
-                ///CONECTA LA URL AL SERVLET PARA ELIMINAR PROFESOR
+                //SE OBTIENE EL ID DEL ELEMENTO PARA PODER ELIMINARLO
+                String id = String.valueOf(skillList.get(viewHolder.getAdapterPosition()).getId());
+
+                //CONECTA LA URL AL SERVLET PARA ELIMINAR PROFESOR
                 apiUrlTemporal = apiUrl + "opc=3&id="+id;
                 MyAsyncTasks myAsyncTasks = new MyAsyncTasks();
                 myAsyncTasks.execute();
-                // save the index deleted
+
+                //SE OBTIENE EL INDICE DEL ELEMENTO BORRADO
                 final int deletedIndex = viewHolder.getAdapterPosition();
-                // remove the item from recyclerView
+
+                //REMUEVE EL ELEMENTO DEL recyclerView
                 mAdapter.removeItem(viewHolder.getAdapterPosition());
 
-                // showing snack bar with Undo option
-                Snackbar snackbar = Snackbar.make(coordinatorLayout, name + " removido!", Snackbar.LENGTH_LONG);
-                snackbar.setAction("Deshacer", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        // undo is selected, restore the deleted item from adapter
-                        mAdapter.restoreItem(deletedIndex);
-                    }
-                });
-                snackbar.setActionTextColor(Color.YELLOW);
-                snackbar.show();
+                Toast.makeText(getApplicationContext(), "Skill eliminado correctamente.", Toast.LENGTH_LONG).show();
             }
-        } else {
-            //If is editing a row object
+        } else { //SI SE VA A EDITAR EL ELEMENTO
             Skill aux = mAdapter.getSwipedItem(viewHolder.getAdapterPosition());
-            //send data to Edit Activity
+
+            //SE ENVIA LA INFORMACION AL OTRO ACTIVITY
             Intent intent = new Intent(this, ActAgrSkillActivity.class);
             intent.putExtra("editable", true);
             intent.putExtra("skill", aux);
-            mAdapter.notifyDataSetChanged(); //restart left swipe view
+
+            //REFRESCA LA VISTA DEL SWIPE EDIT
+            mAdapter.notifyDataSetChanged();
             startActivity(intent);
         }
     }
@@ -143,36 +136,7 @@ public class SkillsActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds alumnoList to the action bar if it is present.
-       /* getMenuInflater().inflate(R.menu.menu_search, menu);
-
-        // Associate searchable configuration with the SearchView   !IMPORTANT
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        searchView = (SearchView) menu.findItem(R.id.action_search)
-                .getActionView();
-        searchView.setSearchableInfo(searchManager
-                .getSearchableInfo(getComponentName()));
-        searchView.setMaxWidth(Integer.MAX_VALUE);
-
-        // listening to search query text change, every type on input
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                // filter recycler view when query submitted
-                mAdapter.getFilter().filter(query);
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String query) {
-                // filter recycler view when text is changed
-                mAdapter.getFilter().filter(query);
-                return false;
-            }
-        });*/
-        return true;
-    }
+    public boolean onCreateOptionsMenu(Menu menu) { return true; }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -181,20 +145,11 @@ public class SkillsActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        /*if (id == R.id.action_search) {
-            return true;
-        }*/
-
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onBackPressed() {
-      /*  if (!searchView.isIconified()) {
-            searchView.setIconified(true);
-            return;
-        }*/
         Intent a = new Intent(this, NavDrawerActivity.class);
         a.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(a);
@@ -203,7 +158,7 @@ public class SkillsActivity extends AppCompatActivity
 
     @Override
     public void onContactSelected(Skill skill) { //TODO get the select item of recycleView
-        Toast.makeText(getApplicationContext(), "Selected: " + skill.getUsuario(), Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), "Seleccionado: " + skill.getNombre(), Toast.LENGTH_LONG).show();
     }
 
     private void checkIntentInformation() {
@@ -227,10 +182,7 @@ public class SkillsActivity extends AppCompatActivity
                 Toast.makeText(getApplicationContext(),  "Agregado correctamente!", Toast.LENGTH_LONG).show();
             }
         }
-
-
     }
-
 
     private void agregarSkill() {
         Intent intent = new Intent(this, ActAgrSkillActivity.class);
@@ -238,16 +190,13 @@ public class SkillsActivity extends AppCompatActivity
         startActivity(intent);
     }
 
-
-    //-------------------------------------
-
-    /// Otra clase
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public class MyAsyncTasks extends AsyncTask<String, String, String> {
 
 
         @Override
-        protected void onPreExecute() {
-        }
+        protected void onPreExecute() { }
 
         @Override
         protected String doInBackground(String... params) {
@@ -316,13 +265,11 @@ public class SkillsActivity extends AppCompatActivity
                 mRecyclerView.addItemDecoration(new DividerItemDecoration(SkillsActivity.this, DividerItemDecoration.VERTICAL));
                 mRecyclerView.setAdapter(mAdapter);
 
-
                 Log.w("ArrayList",skillArrayList.toString());
 
             }catch (Exception e) {
                 e.printStackTrace();
             }
-
         }
     }
 }

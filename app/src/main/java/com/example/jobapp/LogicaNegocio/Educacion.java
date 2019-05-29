@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 public class Educacion implements Serializable {
 
+    private int id;
     private String usuario;
     private String institucion;
     private String carrera;
@@ -11,6 +12,7 @@ public class Educacion implements Serializable {
     private String anno;
 
     public Educacion(){
+        this.id = 0;
         this.usuario = "";
         this.institucion = "";
         this.carrera = "";
@@ -26,6 +28,23 @@ public class Educacion implements Serializable {
         this.anno = anno;
     }
 
+    public Educacion(int id, String usuario, String institucion, String carrera, String titulo, String anno) {
+        this.id = id;
+        this.usuario = usuario;
+        this.institucion = institucion;
+        this.carrera = carrera;
+        this.titulo = titulo;
+        this.anno = anno;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public String getUsuario(){  return usuario; }
 
     public void setUsuario(String usuario){ this.usuario = usuario; }
@@ -36,6 +55,18 @@ public class Educacion implements Serializable {
 
     public String getCarrera(){  return carrera; }
 
+    @Override
+    public String toString() {
+        return "Educacion{" +
+                "id=" + id +
+                ", usuario='" + usuario + '\'' +
+                ", institucion='" + institucion + '\'' +
+                ", carrera='" + carrera + '\'' +
+                ", titulo='" + titulo + '\'' +
+                ", anno='" + anno + '\'' +
+                '}';
+    }
+
     public void setCarrera(String carrera){ this.carrera = carrera; }
 
     public String getTitulo(){  return titulo; }
@@ -45,15 +76,5 @@ public class Educacion implements Serializable {
     public String getAnno(){  return anno; }
 
     public void setAnno(String anno){ this.anno = anno; }
-
-    @Override
-    public String toString() {
-        return "Educacion { " +
-                "cedula='" + usuario + '\'' +
-                ", institucion='" + institucion + '\'' +
-                ", carrera=" + carrera +
-                ", titulo='" + titulo + '\'' +
-                ", año='" + anno + '\'' + '}';
-    }
 
 }

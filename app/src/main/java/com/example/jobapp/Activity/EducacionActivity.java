@@ -1,7 +1,10 @@
 package com.example.jobapp.Activity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -11,8 +14,8 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,7 +25,13 @@ import com.example.jobapp.Adapter.EducacionAdapter;
 import com.example.jobapp.Helper.RecyclerItemTouchHelper;
 import com.example.jobapp.LogicaNegocio.Educacion;
 import com.example.jobapp.R;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +43,11 @@ public class EducacionActivity extends AppCompatActivity
     private List<Educacion> educacionList;
     private CoordinatorLayout coordinatorLayout;
     private FloatingActionButton agregar;
-    //private ModeloDatos modelo;
+
+    String apiUrl = "http://192.168.1.12:8080/JobApp_Web/EducacionServlet?";
+    String apiUrlTemporal = "";
+
+    String USER_ID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,10 +56,8 @@ public class EducacionActivity extends AppCompatActivity
 
         mRecyclerView = findViewById(R.id.recycler_educ);
         educacionList = new ArrayList<>();
-       // modelo = new ModeloDatos();
-       // educacionList = modelo.getEducacionList();
         mAdapter = new EducacionAdapter(educacionList, this);
-        coordinatorLayout = findViewById(R.id.coordinator_layout);
+        coordinatorLayout = findViewById(R.id.coordinator_layout_educ);
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -54,7 +65,17 @@ public class EducacionActivity extends AppCompatActivity
         mRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         mRecyclerView.setAdapter(mAdapter);
 
-        // Boton
+        //OBTIENE LOS DATOS DESDE EL MOMENTO DEL LOGIN
+        SharedPreferences prefs = this.getSharedPreferences(getString(R.string.preference_user_key), Context.MODE_PRIVATE);
+        String defaultValue = getResources().getString(R.string.preference_user_key_default);
+        USER_ID = prefs.getString("ID", defaultValue);
+
+        //LISTA LOS DATOS DEL USUARIO
+        apiUrlTemporal = apiUrl+"opc=1&usuario="+USER_ID;
+        MyAsyncTasks myAsyncTasks = new MyAsyncTasks();
+        myAsyncTasks.execute();
+
+        // BOTON PARA AGREGAR SKILLS
         agregar = findViewById(R.id.agregar_educ);
         agregar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,14 +84,14 @@ public class EducacionActivity extends AppCompatActivity
             }
         });
 
-        //delete swiping left and right
+        //SWIPE PARA BORRAR O EDITAR
         ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerItemTouchHelper(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT, this);
         new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(mRecyclerView);
 
-        // Receive the Carrera sent by AddUpdCarreraActivity
+        //RECIBE LOS DATOS DE SKILL ENVIADOS DESDE DONDE SE MODIFICA O AGREGA
         checkIntentInformation();
 
-        //refresh view
+        //SE REFRESCA LA VISTA
         mAdapter.notifyDataSetChanged();
 
     }
@@ -79,34 +100,33 @@ public class EducacionActivity extends AppCompatActivity
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction, int position) {
         if (direction == ItemTouchHelper.START) {
             if (viewHolder instanceof EducacionAdapter.MyViewHolder) {
-                // get the removed item name to display it in snack bar
-                String name = educacionList.get(viewHolder.getAdapterPosition()).getInstitucion();
 
-                // save the index deleted
+                //SE OBTIENE EL ID DEL ELEMENTO PARA PODER ELIMINARLO
+                String id = String.valueOf(educacionList.get(viewHolder.getAdapterPosition()).getId());
+
+                //CONECTA LA URL AL SERVLET PARA ELIMINAR PROFESOR
+                apiUrlTemporal = apiUrl + "opc=3&id="+id;
+                MyAsyncTasks myAsyncTasks = new MyAsyncTasks();
+                myAsyncTasks.execute();
+
+                //SE OBTIENE EL INDICE DEL ELEMENTO BORRADO
                 final int deletedIndex = viewHolder.getAdapterPosition();
-                // remove the item from recyclerView
+
+                //REMUEVE EL ELEMENTO DEL recyclerView
                 mAdapter.removeItem(viewHolder.getAdapterPosition());
 
-                // showing snack bar with Undo option
-                Snackbar snackbar = Snackbar.make(coordinatorLayout, name + " removido!", Snackbar.LENGTH_LONG);
-                snackbar.setAction("Deshacer", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        // undo is selected, restore the deleted item from adapter
-                        mAdapter.restoreItem(deletedIndex);
-                    }
-                });
-                snackbar.setActionTextColor(Color.YELLOW);
-                snackbar.show();
+                Toast.makeText(getApplicationContext(), "Educación eliminado correctamente.", Toast.LENGTH_LONG).show();
             }
-        } else {
-            //If is editing a row object
+        } else { //SI SE VA A EDITAR EL ELEMENTO
             Educacion aux = mAdapter.getSwipedItem(viewHolder.getAdapterPosition());
-            //send data to Edit Activity
+
+            //SE ENVIA LA INFORMACION AL OTRO ACTIVITY
             Intent intent = new Intent(this, ActAgrEducacionActivity.class);
             intent.putExtra("editable", true);
             intent.putExtra("educacion", aux);
-            mAdapter.notifyDataSetChanged(); //restart left swipe view
+
+            //REFRESCA LA VISTA DEL SWIPE EDIT
+            mAdapter.notifyDataSetChanged();
             startActivity(intent);
         }
     }
@@ -117,36 +137,7 @@ public class EducacionActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds alumnoList to the action bar if it is present.
-       /* getMenuInflater().inflate(R.menu.menu_search, menu);
-
-        // Associate searchable configuration with the SearchView   !IMPORTANT
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        searchView = (SearchView) menu.findItem(R.id.action_search)
-                .getActionView();
-        searchView.setSearchableInfo(searchManager
-                .getSearchableInfo(getComponentName()));
-        searchView.setMaxWidth(Integer.MAX_VALUE);
-
-        // listening to search query text change, every type on input
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                // filter recycler view when query submitted
-                mAdapter.getFilter().filter(query);
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String query) {
-                // filter recycler view when text is changed
-                mAdapter.getFilter().filter(query);
-                return false;
-            }
-        });*/
-        return true;
-    }
+    public boolean onCreateOptionsMenu(Menu menu) { return true; }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -155,20 +146,11 @@ public class EducacionActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        /*if (id == R.id.action_search) {
-            return true;
-        }*/
-
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onBackPressed() {
-      /*  if (!searchView.isIconified()) {
-            searchView.setIconified(true);
-            return;
-        }*/
         Intent a = new Intent(this, NavDrawerActivity.class);
         a.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(a);
@@ -177,48 +159,118 @@ public class EducacionActivity extends AppCompatActivity
 
     @Override
     public void onContactSelected(Educacion educacion) { //TODO get the select item of recycleView
-        Toast.makeText(getApplicationContext(), "Selected: " + educacion.getUsuario(), Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), "Seleccionado: " + educacion.getInstitucion(), Toast.LENGTH_LONG).show();
     }
 
     private void checkIntentInformation() {
         Bundle extras = getIntent().getExtras();
+
         if (extras != null) {
             Educacion aux;
             aux = (Educacion) getIntent().getSerializableExtra("agregarEducacion");
             if (aux == null) {
                 aux = (Educacion) getIntent().getSerializableExtra("editarEducacion");
                 if (aux != null) {
-                    //found an item that can be updated
-                    boolean founded = false;
-                    for (Educacion educacion : educacionList) {
-                        if (educacion.getUsuario().equals(aux.getUsuario())) {
-                            educacion.setInstitucion(aux.getInstitucion());
-                            educacion.setCarrera(aux.getCarrera());
-                            educacion.setTitulo(aux.getTitulo());
-                            educacion.setAnno(aux.getAnno());
-                            founded = true;
-                            break;
-                        }
-                    }
-                    //check if exist
-                    if (founded) {
-                        Toast.makeText(getApplicationContext(), "Editado correctamente!", Toast.LENGTH_LONG).show();
-                    } else {
-                        Toast.makeText(getApplicationContext(), "No encontrado!", Toast.LENGTH_LONG).show();
-                    }
+                    apiUrlTemporal = apiUrl + "opc=4&id="+aux.getId()+"usuario="+aux.getUsuario()+"&institucion="+aux.getInstitucion()+"&carrera="+aux.getCarrera()+"&titulo="+aux.getCarrera()+"&anno="+aux.getAnno();
+                    MyAsyncTasks myAsyncTasks = new MyAsyncTasks();
+                    myAsyncTasks.execute();
+                    Toast.makeText(getApplicationContext(),  "Editado correctamente!", Toast.LENGTH_LONG).show();
                 }
             } else {
-                //found a new Alumno Object
-                educacionList.add(aux);
+                apiUrlTemporal = apiUrl + "opc=2&usuario="+aux.getUsuario()+"&institucion="+aux.getInstitucion()+"&carrera="+aux.getCarrera()+"&titulo="+aux.getCarrera()+"&anno="+aux.getAnno();
+                MyAsyncTasks myAsyncTasks = new MyAsyncTasks();
+                myAsyncTasks.execute();
                 Toast.makeText(getApplicationContext(),  "Agregado correctamente!", Toast.LENGTH_LONG).show();
             }
         }
     }
 
-
     private void agregarEducacion() {
         Intent intent = new Intent(this, ActAgrEducacionActivity.class);
         intent.putExtra("editable", false);
         startActivity(intent);
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    public class MyAsyncTasks extends AsyncTask<String, String, String> {
+
+
+        @Override
+        protected void onPreExecute() { }
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            // implement API in background and store the response in current variable
+            String current = "";
+            try {
+                URL url;
+                HttpURLConnection urlConnection = null;
+                try {
+                    url = new URL(apiUrlTemporal);
+
+                    urlConnection = (HttpURLConnection) url
+                            .openConnection();
+
+                    InputStream in = urlConnection.getInputStream();
+
+                    InputStreamReader isw = new InputStreamReader(in);
+
+                    int data = isw.read();
+                    while (data != -1) {
+                        current += (char) data;
+                        data = isw.read();
+
+                    }
+                    // return the data to onPostExecute method
+                    Log.w("JSON", current);
+                    return current;
+
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    if (urlConnection != null) {
+                        urlConnection.disconnect();
+                    }
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                return "Exception: " + e.getMessage();
+            }
+            return current;
+        }
+
+
+        @Override
+        protected void onPostExecute(String s) {
+            Log.w("miJSON", s);
+
+            try {
+                Gson gson = new Gson();
+                ArrayList<Educacion> educacionArrayList = (ArrayList<Educacion>) gson.fromJson(s,
+                        new TypeToken<ArrayList<Educacion>>() {
+                        }.getType());
+
+                educacionList = educacionArrayList;
+                mAdapter = new EducacionAdapter(educacionList, EducacionActivity.this);
+                coordinatorLayout = findViewById(R.id.coordinator_layout_educ);
+
+                mRecyclerView = findViewById(R.id.recycler_educ);
+
+                RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+                mRecyclerView.setLayoutManager(mLayoutManager);
+                mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+                mRecyclerView.addItemDecoration(new DividerItemDecoration(EducacionActivity.this, DividerItemDecoration.VERTICAL));
+                mRecyclerView.setAdapter(mAdapter);
+
+                Log.w("ArrayList",educacionArrayList.toString());
+
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
