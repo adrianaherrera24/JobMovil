@@ -4,16 +4,25 @@ import java.io.Serializable;
 
 public class Usuario implements Serializable {
 
-    String uemail, upassword, uid, uprivilegio;
+    String uemail, upassword, uid, uprivilegio, unombre;
 
     public Usuario() {
     }
 
-    public Usuario(String uemail, String upassword, String uid, String uprivilegio) {
+    public Usuario(String uemail, String upassword, String uid, String uprivilegio, String unombre) {
         this.uemail = uemail;
         this.upassword = upassword;
         this.uid = uid;
         this.uprivilegio = uprivilegio;
+        this.unombre = unombre;
+    }
+
+    public String getUNombre() {
+        return unombre;
+    }
+
+    public void setUNombre(String unombre) {
+        this.unombre = unombre;
     }
 
     public String getUemail() {

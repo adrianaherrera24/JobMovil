@@ -109,13 +109,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private ArrayList<Usuario> listarUsuarios() {
         ArrayList<Usuario> usuariosList = new ArrayList<>();
         //administrador
-        usuariosList.add(new Usuario("@nana", "nana123", "2424", "user"));
+        usuariosList.add(new Usuario("@nana", "nana123", "2424", "user","Adriana Herrera A."));
         //matriculador
-        usuariosList.add(new Usuario("@leo", "leo123", "1717", "user"));
+        usuariosList.add(new Usuario("@leo", "leo123", "1717", "user","Leonardo Hidalgo F."));
         //profesor
-        usuariosList.add(new Usuario("@ibm", "ibm123", "3030", "empresa"));
+        usuariosList.add(new Usuario("@ibm", "ibm123", "3030", "empresa","IBM"));
         //alumno
-        usuariosList.add(new Usuario("@intel", "intel", "4040", "empresa"));
+        usuariosList.add(new Usuario("@intel", "intel", "4040", "empresa","Intel"));
         return usuariosList;
     }
 
@@ -340,14 +340,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 return false;
             }
 
-            /*for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
-*/
             for (Usuario user : listarUsuarios()) {
                 if (user.getUemail().equals(mEmail)) {
                     // Account exists, return true if the password matches.
@@ -369,6 +361,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 /// nuevo
                 prefs.edit().putString("Privilegio", usuario.getUprivilegio()).apply();
                 prefs.edit().putString("ID", usuario.getUid()).apply();
+                prefs.edit().putString("Nombre", usuario.getUNombre()).apply();
 
                 Intent intent = new Intent(LoginActivity.this, NavDrawerActivity.class);
                 startActivity(intent);

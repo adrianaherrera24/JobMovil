@@ -13,6 +13,7 @@ import android.view.View;
 import com.example.jobapp.Activity.SkillsActivity;
 import com.example.jobapp.Adapter.EducacionAdapter;
 import com.example.jobapp.Adapter.PublicacionesAdapter;
+import com.example.jobapp.Adapter.ReferenciaAdapter;
 import com.example.jobapp.Adapter.SkillsAdapter;
 import com.example.jobapp.Adapter.TrabajoAdapter;
 import com.example.jobapp.LogicaNegocio.Educacion;
@@ -76,11 +77,11 @@ public class RecyclerItemTouchHelper extends ItemTouchHelper.SimpleCallback {
                 foregroundView = ((TrabajoAdapter.MyViewHolder) viewHolder).viewForeground;
             } else if (this.listener.getClass().getSimpleName().equals("PublicacionesActivity")) {
                 foregroundView = ((PublicacionesAdapter.MyViewHolder) viewHolder).viewForeground;
-            }/* else if (this.listener.getClass().getSimpleName().equals("AdmCicloActivity")) {
-                backgroundViewEdit = ((CicloAdapter.MyViewHolder) viewHolder).viewBackgroundEdit;
-                backgroundViewDelete = ((CicloAdapter.MyViewHolder) viewHolder).viewBackgroundDelete;
-                foregroundView = ((CicloAdapter.MyViewHolder) viewHolder).viewForeground;
-            } else if (this.listener.getClass().getSimpleName().equals("AdmGrupoActivity")) {
+            } else if (this.listener.getClass().getSimpleName().equals("ReferenciaActivity")) {
+                backgroundViewEdit = ((ReferenciaAdapter.MyViewHolder) viewHolder).viewBackgroundEdit;
+                backgroundViewDelete = ((ReferenciaAdapter.MyViewHolder) viewHolder).viewBackgroundDelete;
+                foregroundView = ((ReferenciaAdapter.MyViewHolder) viewHolder).viewForeground;
+            } /*else if (this.listener.getClass().getSimpleName().equals("AdmGrupoActivity")) {
                 backgroundViewEdit = ((GrupoAdapter.MyViewHolder) viewHolder).viewBackgroundEdit;
                 backgroundViewDelete = ((GrupoAdapter.MyViewHolder) viewHolder).viewBackgroundDelete;
                 foregroundView = ((GrupoAdapter.MyViewHolder) viewHolder).viewForeground;

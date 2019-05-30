@@ -20,6 +20,14 @@
             android:id="@+id/nav_experiencia"
             android:icon="@drawable/ic_experience"
             android:title="Experiencia" />
+        <item
+            android:id="@+id/nav_referencia"
+            android:icon="@drawable/ic_contact"
+            android:title="Referencias" />
+        <item
+            android:id="@+id/nav_puestos"
+            android:icon="@drawable/ic_experience"
+            android:title="Mis Puestos" />
     </group>
 
     <item android:title="Sesión">

@@ -42,4 +42,6 @@
     <string name="title_activity_trabajo">TrabajoActivity</string>
     <string name="title_activity_act_agr_trabajo">ActAgrTrabajoActivity</string>
     <string name="title_activity_act_agr_publicacion">ActAgrPublicacionActivity</string>
+    <string name="title_activity_referencia">ReferenciaActivity</string>
+    <string name="title_activity_act_agr_referencia">ActAgrReferenciaActivity</string>
 </resources>

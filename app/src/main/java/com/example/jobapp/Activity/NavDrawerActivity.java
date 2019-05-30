@@ -21,6 +21,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.jobapp.Adapter.PublicacionesAdapter;
@@ -39,7 +41,6 @@ public class NavDrawerActivity extends AppCompatActivity
     private CoordinatorLayout coordinatorLayout;
     private FloatingActionButton agregar;
     private Button editar, borrar;
-    //private ModeloDatos modelo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,8 +63,6 @@ public class NavDrawerActivity extends AppCompatActivity
 
         mRecyclerView = findViewById(R.id.recycler_pub);
         publicacionesList = new ArrayList<>();
-        //modelo = new ModeloDatos();
-        //publicacionesList = modelo.getPublicacionesList();
         mAdapter = new PublicacionesAdapter(publicacionesList, this);
         coordinatorLayout = findViewById(R.id.coordinator_layout_pub);
 
@@ -84,7 +83,6 @@ public class NavDrawerActivity extends AppCompatActivity
 
         // Receive the Carrera sent by AddUpdCarreraActivity
         checkIntentInformation();
-
 
         //refresh view
         mAdapter.notifyDataSetChanged();
@@ -110,6 +108,10 @@ public class NavDrawerActivity extends AppCompatActivity
                 holder.setEnabled(true);
                 holder = menu.findItem(R.id.nav_experiencia);
                 holder.setEnabled(true);
+                holder = menu.findItem(R.id.nav_referencia);
+                holder.setEnabled(true);
+                holder = menu.findItem(R.id.nav_puestos);
+                holder.setVisible(false);
                 break;
             case "empresa":
                 holder = menu.findItem(R.id.nav_descripcion);
@@ -120,21 +122,23 @@ public class NavDrawerActivity extends AppCompatActivity
                 holder.setVisible(false);
                 holder = menu.findItem(R.id.nav_experiencia);
                 holder.setVisible(false);
+                holder = menu.findItem(R.id.nav_referencia);
+                holder.setVisible(false);
+                holder = menu.findItem(R.id.nav_puestos);
+                holder.setEnabled(true);
                 break;
             default:    //if is none
                 break;
         }
     }
-/*
+
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }*/
+        Intent a = new Intent(this, LoginActivity.class);
+        a.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(a);
+        super.onBackPressed();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -172,6 +176,10 @@ public class NavDrawerActivity extends AppCompatActivity
             abrirEducacion();
         } else if (id == R.id.nav_experiencia) {
             abrirTrabajo();
+        } else if (id == R.id.nav_referencia) {
+            abrirReferencia();
+        } else if (id == R.id.nav_puestos) {
+
         } else if (id == R.id.nav_logout) {
             abrirLogin();
         }
@@ -207,6 +215,12 @@ public class NavDrawerActivity extends AppCompatActivity
     public void abrirTrabajo() {
         finish(); /// Termina el proceso del layout
         Intent b = new Intent(NavDrawerActivity.this, TrabajoActivity.class);
+        startActivity(b);
+    }
+
+    public void abrirReferencia() {
+        finish(); /// Termina el proceso del layout
+        Intent b = new Intent(NavDrawerActivity.this, ReferenciaActivity.class);
         startActivity(b);
     }
 
