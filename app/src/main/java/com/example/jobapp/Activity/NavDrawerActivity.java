@@ -3,6 +3,7 @@ package com.example.jobapp.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -17,6 +18,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,12 +30,18 @@ import android.widget.Toast;
 import com.example.jobapp.Adapter.PublicacionesAdapter;
 import com.example.jobapp.LogicaNegocio.Publicaciones;
 import com.example.jobapp.R;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 public class NavDrawerActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, PublicacionesAdapter.PublicacionesAdapterListener{
+        implements NavigationView.OnNavigationItemSelectedListener, PublicacionesAdapter.PublicacionesAdapterListener {
 
     private RecyclerView mRecyclerView;
     private PublicacionesAdapter mAdapter;
@@ -41,6 +49,10 @@ public class NavDrawerActivity extends AppCompatActivity
     private CoordinatorLayout coordinatorLayout;
     private FloatingActionButton agregar;
     private Button editar, borrar;
+
+    String apiUrl = "http://192.168.1.12:8080/JobApp_Web/PuestoUsuarioServlet?";
+    String apiUrlTemporal = "";
+    String USER_ID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,9 +84,14 @@ public class NavDrawerActivity extends AppCompatActivity
         mRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         mRecyclerView.setAdapter(mAdapter);
 
+        //LISTA LOS DATOS DEL USUARIO
+        apiUrlTemporal = apiUrl + "opc=1&usuario=" + USER_ID;
+        MyAsyncTasks myAsyncTasks = new MyAsyncTasks();
+        myAsyncTasks.execute();
+
         // Boton
         agregar = findViewById(R.id.agregar_pub);
-        agregar.setOnClickListener(new View.OnClickListener(){
+        agregar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 agregarPublicacion();
@@ -258,7 +275,7 @@ public class NavDrawerActivity extends AppCompatActivity
             } else {
                 //found a new Alumno Object
                 publicacionesList.add(aux);
-                Toast.makeText(getApplicationContext(),  "Agregado correctamente!", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Agregado correctamente!", Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -275,4 +292,86 @@ public class NavDrawerActivity extends AppCompatActivity
         startActivity(intent);
     }
 
+
+    public class MyAsyncTasks extends AsyncTask<String, String, String> {
+
+
+        @Override
+        protected void onPreExecute() {
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            // implement API in background and store the response in current variable
+            String current = "";
+            try {
+                URL url;
+                HttpURLConnection urlConnection = null;
+                try {
+                    url = new URL(apiUrlTemporal);
+
+                    urlConnection = (HttpURLConnection) url
+                            .openConnection();
+
+                    InputStream in = urlConnection.getInputStream();
+
+                    InputStreamReader isw = new InputStreamReader(in);
+
+                    int data = isw.read();
+                    while (data != -1) {
+                        current += (char) data;
+                        data = isw.read();
+
+                    }
+                    // return the data to onPostExecute method
+                    Log.w("JSON", current);
+                    return current;
+
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    if (urlConnection != null) {
+                        urlConnection.disconnect();
+                    }
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                return "Exception: " + e.getMessage();
+            }
+            return current;
+        }
+
+
+        @Override
+        protected void onPostExecute(String s) {
+            Log.w("miJSON", s);
+
+            try {
+                Gson gson = new Gson();
+                ArrayList<Puesto> puestolArrayList = (ArrayList<Puesto>) gson.fromJson(s,
+                        new TypeToken<ArrayList<Puesto>>() {
+                        }.getType());
+
+                puestoList = puestolArrayList;
+                mAdapter = new PuestoAdapter(puestoList, NavDrawerActivity.this);
+                coordinatorLayout = findViewById(R.id.coordinator_layout_skill);
+
+                mRecyclerView = findViewById(R.id.recycler_skill);
+
+                RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+                mRecyclerView.setLayoutManager(mLayoutManager);
+                mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+                mRecyclerView.addItemDecoration(new DividerItemDecoration(NavDrawerActivity.this, DividerItemDecoration.VERTICAL));
+                mRecyclerView.setAdapter(mAdapter);
+
+                Log.w("ArrayList", skillArrayList.toString());
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
