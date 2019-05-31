@@ -169,7 +169,7 @@ public class NavDrawerActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_descripcion) {
-            //
+            abrirDescripcion();
         } else if (id == R.id.nav_skills) {
             abrirSkill();
         } else if (id == R.id.nav_educacion) {
@@ -222,6 +222,12 @@ public class NavDrawerActivity extends AppCompatActivity
         finish(); /// Termina el proceso del layout
         Intent b = new Intent(NavDrawerActivity.this, ReferenciaActivity.class);
         startActivity(b);
+    }
+
+    public void abrirDescripcion() {
+        finish(); /// Termina el proceso del layout
+        Intent a = new Intent(NavDrawerActivity.this, PerfilActivity.class);
+        startActivity(a);
     }
 
     private void checkIntentInformation() {

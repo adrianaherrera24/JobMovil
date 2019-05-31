@@ -12,6 +12,7 @@ import android.view.View;
 
 import com.example.jobapp.Activity.SkillsActivity;
 import com.example.jobapp.Adapter.EducacionAdapter;
+import com.example.jobapp.Adapter.PerfilAdapter;
 import com.example.jobapp.Adapter.PublicacionesAdapter;
 import com.example.jobapp.Adapter.ReferenciaAdapter;
 import com.example.jobapp.Adapter.SkillsAdapter;
@@ -81,11 +82,9 @@ public class RecyclerItemTouchHelper extends ItemTouchHelper.SimpleCallback {
                 backgroundViewEdit = ((ReferenciaAdapter.MyViewHolder) viewHolder).viewBackgroundEdit;
                 backgroundViewDelete = ((ReferenciaAdapter.MyViewHolder) viewHolder).viewBackgroundDelete;
                 foregroundView = ((ReferenciaAdapter.MyViewHolder) viewHolder).viewForeground;
-            } /*else if (this.listener.getClass().getSimpleName().equals("AdmGrupoActivity")) {
-                backgroundViewEdit = ((GrupoAdapter.MyViewHolder) viewHolder).viewBackgroundEdit;
-                backgroundViewDelete = ((GrupoAdapter.MyViewHolder) viewHolder).viewBackgroundDelete;
-                foregroundView = ((GrupoAdapter.MyViewHolder) viewHolder).viewForeground;
-            } else if (this.listener.getClass().getSimpleName().equals("AdmSeguridadActivity")) {
+            } else if (this.listener.getClass().getSimpleName().equals("PerfilActivity")) {
+                foregroundView = ((PerfilAdapter.MyViewHolder) viewHolder).viewForeground;
+            } /*else if (this.listener.getClass().getSimpleName().equals("AdmSeguridadActivity")) {
                 backgroundViewEdit = ((SeguridadAdapter.MyViewHolder) viewHolder).viewBackgroundEdit;
                 backgroundViewDelete = ((SeguridadAdapter.MyViewHolder) viewHolder).viewBackgroundDelete;
                 foregroundView = ((SeguridadAdapter.MyViewHolder) viewHolder).viewForeground;

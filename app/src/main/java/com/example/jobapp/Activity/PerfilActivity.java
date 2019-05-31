@@ -21,11 +21,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.example.jobapp.Adapter.EducacionAdapter;
-import com.example.jobapp.Adapter.ReferenciaAdapter;
+import com.example.jobapp.Adapter.PerfilAdapter;
 import com.example.jobapp.Helper.RecyclerItemTouchHelper;
-import com.example.jobapp.LogicaNegocio.Educacion;
-import com.example.jobapp.LogicaNegocio.Referencia;
+import com.example.jobapp.LogicaNegocio.Perfil;
 import com.example.jobapp.R;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -37,29 +35,30 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReferenciaActivity extends AppCompatActivity
-        implements RecyclerItemTouchHelper.RecyclerItemTouchHelperListener, ReferenciaAdapter.ReferenciaAdapterListener{
+public class PerfilActivity extends AppCompatActivity
+        implements PerfilAdapter.PerfilAdapterListener{
 
     private RecyclerView mRecyclerView;
-    private ReferenciaAdapter mAdapter;
-    private List<Referencia> referenciaList;
+    private PerfilAdapter mAdapter;
+    private List<Perfil> perfilList;
     private CoordinatorLayout coordinatorLayout;
-    private FloatingActionButton agregar;
+    private FloatingActionButton editar;
 
-    String apiUrl = "http://192.168.1.3:8080/JobApp_Web/ReferenciaServlet?";
+    String apiUrl = "http://192.168.1.3:8080/JobApp_Web/PerfilServlet?";
     String apiUrlTemporal = "";
-
     String USER_ID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_referencia);
+        setContentView(R.layout.activity_perfil);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-        mRecyclerView = findViewById(R.id.recycler_ref);
-        referenciaList = new ArrayList<>();
-        mAdapter = new ReferenciaAdapter(referenciaList, this);
-        coordinatorLayout = findViewById(R.id.coordinator_layout_ref);
+        mRecyclerView = findViewById(R.id.recycler_per);
+        perfilList = new ArrayList<>();
+        mAdapter = new PerfilAdapter(perfilList, this);
+        coordinatorLayout = findViewById(R.id.coordinator_layout_per);
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -73,22 +72,22 @@ public class ReferenciaActivity extends AppCompatActivity
         USER_ID = prefs.getString("ID", defaultValue);
 
         //LISTA LOS DATOS DEL USUARIO
-        apiUrlTemporal = apiUrl+"opc=1&usuario="+USER_ID;
+        apiUrlTemporal = apiUrl+"opc=1&id="+USER_ID;
         MyAsyncTasks myAsyncTasks = new MyAsyncTasks();
         myAsyncTasks.execute();
 
         // BOTON PARA AGREGAR SKILLS
-        agregar = findViewById(R.id.agregar_ref);
-        agregar.setOnClickListener(new View.OnClickListener() {
+        editar = findViewById(R.id.editar_per);
+        editar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                agregarReferencia();
+                editarPerfil();
             }
         });
 
         //SWIPE PARA BORRAR O EDITAR
-        ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerItemTouchHelper(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT, this);
-        new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(mRecyclerView);
+        //ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerItemTouchHelper(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT, this);
+       // new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(mRecyclerView);
 
         //RECIBE LOS DATOS DE SKILL ENVIADOS DESDE DONDE SE MODIFICA O AGREGA
         checkIntentInformation();
@@ -96,46 +95,6 @@ public class ReferenciaActivity extends AppCompatActivity
         //SE REFRESCA LA VISTA
         mAdapter.notifyDataSetChanged();
 
-    }
-
-    @Override
-    public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction, int position) {
-        if (direction == ItemTouchHelper.START) {
-            if (viewHolder instanceof ReferenciaAdapter.MyViewHolder) {
-
-                //SE OBTIENE EL ID DEL ELEMENTO PARA PODER ELIMINARLO
-                String id = String.valueOf(referenciaList.get(viewHolder.getAdapterPosition()).getId());
-
-                //CONECTA LA URL AL SERVLET PARA ELIMINAR PROFESOR
-                apiUrlTemporal = apiUrl + "opc=3&id="+id;
-                MyAsyncTasks myAsyncTasks = new MyAsyncTasks();
-                myAsyncTasks.execute();
-
-                //SE OBTIENE EL INDICE DEL ELEMENTO BORRADO
-                final int deletedIndex = viewHolder.getAdapterPosition();
-
-                //REMUEVE EL ELEMENTO DEL recyclerView
-                mAdapter.removeItem(viewHolder.getAdapterPosition());
-
-                Toast.makeText(getApplicationContext(), "Referencia eliminada correctamente.", Toast.LENGTH_LONG).show();
-            }
-        } else { //SI SE VA A EDITAR EL ELEMENTO
-            Referencia aux = mAdapter.getSwipedItem(viewHolder.getAdapterPosition());
-
-            //SE ENVIA LA INFORMACION AL OTRO ACTIVITY
-            Intent intent = new Intent(this, ActAgrReferenciaActivity.class);
-            intent.putExtra("editable", true);
-            intent.putExtra("referencia", aux);
-
-            //REFRESCA LA VISTA DEL SWIPE EDIT
-            mAdapter.notifyDataSetChanged();
-            startActivity(intent);
-        }
-    }
-
-    @Override
-    public void onItemMove(int source, int target) {
-        mAdapter.onItemMove(source, target);
     }
 
     @Override
@@ -160,37 +119,38 @@ public class ReferenciaActivity extends AppCompatActivity
     }
 
     @Override
-    public void onContactSelected(Referencia referencia) { //TODO get the select item of recycleView
-        Toast.makeText(getApplicationContext(), "Seleccionado: " + referencia.getNombre(), Toast.LENGTH_LONG).show();
+    public void onContactSelected(Perfil perfil) { //TODO get the select item of recycleView
+        Toast.makeText(getApplicationContext(), "Perfil Personal", Toast.LENGTH_LONG).show();
     }
 
     private void checkIntentInformation() {
         Bundle extras = getIntent().getExtras();
 
         if (extras != null) {
-            Referencia aux;
-            aux = (Referencia) getIntent().getSerializableExtra("agregarReferencia");
+            Perfil aux;
+            aux = (Perfil) getIntent().getSerializableExtra("agregarPerfil");
             if (aux == null) {
-                aux = (Referencia) getIntent().getSerializableExtra("editarReferencia");
+                aux = (Perfil) getIntent().getSerializableExtra("editarPerfil");
                 if (aux != null) {
-                    apiUrlTemporal = apiUrl + "opc=4&id="+aux.getId()+"&usuario="+aux.getUsuario()+"&nombre="+aux.getNombre()+"&descripcion="+aux.getDescripcion()+"&telefono="+aux.getTelefono()+"&email="+aux.getEmail();
+                    apiUrlTemporal = apiUrl + "opc=4&id="+aux.getId()+"&nombre="+aux.getNombre()+"&lugar_habitacion="+aux.getLugar_habitacion()+"&edad="+aux.getEdad()+"&correo="+aux.getCorreo()+"&telefono="+aux.getTelefono()+"&descripcion="+aux.getDescripcion();
                     MyAsyncTasks myAsyncTasks = new MyAsyncTasks();
                     myAsyncTasks.execute();
-                    Toast.makeText(getApplicationContext(),  "Editado correctamente!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(),  "Perfil Actualizado!", Toast.LENGTH_LONG).show();
                 }
-            } else {
-                apiUrlTemporal = apiUrl + "opc=2&usuario="+aux.getUsuario()+"&nombre="+aux.getNombre()+"&descripcion="+aux.getDescripcion()+"&telefono="+aux.getTelefono()+"&email="+aux.getEmail();
+            } /*else {
+                apiUrlTemporal = apiUrl + "opc=2&usuario="+aux.getUsuario()+"&institucion="+aux.getInstitucion()+"&carrera="+aux.getCarrera()+"&titulo="+aux.getCarrera()+"&anno="+aux.getAnno();
                 MyAsyncTasks myAsyncTasks = new MyAsyncTasks();
                 myAsyncTasks.execute();
                 Toast.makeText(getApplicationContext(),  "Agregado correctamente!", Toast.LENGTH_LONG).show();
-            }
+            }*/
         }
     }
 
-    private void agregarReferencia() {
-        Intent intent = new Intent(this, ActAgrReferenciaActivity.class);
-        intent.putExtra("editable", false);
-        startActivity(intent);
+    private void editarPerfil() {
+        /*Intent intent = new Intent(this, ActAgrEducacionActivity.class);
+        intent.putExtra("editable", true);
+        intent.putExtra("educacion", aux);
+        startActivity(intent);*/
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -252,27 +212,28 @@ public class ReferenciaActivity extends AppCompatActivity
 
             try {
                 Gson gson = new Gson();
-                ArrayList<Referencia> referenciaArrayList = (ArrayList<Referencia>) gson.fromJson(s,
-                        new TypeToken<ArrayList<Referencia>>() {
+                ArrayList<Perfil> perfilArrayList = (ArrayList<Perfil>) gson.fromJson(s,
+                        new TypeToken<ArrayList<Perfil>>() {
                         }.getType());
 
-                referenciaList = referenciaArrayList;
-                mAdapter = new ReferenciaAdapter(referenciaList, ReferenciaActivity.this);
-                coordinatorLayout = findViewById(R.id.coordinator_layout_ref);
+                perfilList = perfilArrayList;
+                mAdapter = new PerfilAdapter(perfilList, PerfilActivity.this);
+                coordinatorLayout = findViewById(R.id.coordinator_layout_per);
 
-                mRecyclerView = findViewById(R.id.recycler_ref);
+                mRecyclerView = findViewById(R.id.recycler_per);
 
                 RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
                 mRecyclerView.setLayoutManager(mLayoutManager);
                 mRecyclerView.setItemAnimator(new DefaultItemAnimator());
-                mRecyclerView.addItemDecoration(new DividerItemDecoration(ReferenciaActivity.this, DividerItemDecoration.VERTICAL));
+                mRecyclerView.addItemDecoration(new DividerItemDecoration(PerfilActivity.this, DividerItemDecoration.VERTICAL));
                 mRecyclerView.setAdapter(mAdapter);
 
-                Log.w("ArrayList",referenciaArrayList.toString());
+                Log.w("ArrayList",perfilArrayList.toString());
 
             }catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
+
 }

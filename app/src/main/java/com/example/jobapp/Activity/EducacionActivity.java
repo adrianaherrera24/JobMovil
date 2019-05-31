@@ -44,7 +44,7 @@ public class EducacionActivity extends AppCompatActivity
     private CoordinatorLayout coordinatorLayout;
     private FloatingActionButton agregar;
 
-    String apiUrl = "http://192.168.1.12:8080/JobApp_Web/EducacionServlet?";
+    String apiUrl = "http://192.168.1.3:8080/JobApp_Web/EducacionServlet?";
     String apiUrlTemporal = "";
 
     String USER_ID;

@@ -45,7 +45,7 @@ public class TrabajoActivity extends AppCompatActivity
     private CoordinatorLayout coordinatorLayout;
     private FloatingActionButton agregar;
 
-    String apiUrl = "http://192.168.1.12:8080/JobApp_Web/TrabajoServlet?";
+    String apiUrl = "http://192.168.1.3:8080/JobApp_Web/TrabajoServlet?";
     String apiUrlTemporal = "";
 
     String USER_ID;

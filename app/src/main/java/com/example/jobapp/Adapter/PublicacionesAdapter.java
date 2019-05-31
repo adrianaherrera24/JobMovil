@@ -69,8 +69,7 @@ public class PublicacionesAdapter extends RecyclerView.Adapter<PublicacionesAdap
     } /// Termina clase ViewHolder
 
     public PublicacionesAdapter(List<Publicaciones> publicacionesList, PublicacionesAdapterListener listener) {
-        this.publicacionesList = publicacionesList
-        ;
+        this.publicacionesList = publicacionesList;
         this.listener = listener;
         //init filter
         this.listaFiltrarPublicaciones = publicacionesList;
