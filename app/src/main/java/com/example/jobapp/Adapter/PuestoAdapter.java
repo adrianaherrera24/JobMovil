@@ -1,6 +1,5 @@
 package com.example.jobapp.Adapter;
 
-import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,27 +9,24 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.jobapp.Activity.ActAgrPublicacionActivity;
-import com.example.jobapp.LogicaNegocio.Publicaciones;
+import com.example.jobapp.LogicaNegocio.Puesto;
 import com.example.jobapp.R;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-public class PublicacionesAdapter extends RecyclerView.Adapter<PublicacionesAdapter.MyViewHolder> {
+public class PuestoAdapter extends RecyclerView.Adapter<PuestoAdapter.MyViewHolder> {
 
-    private List<Publicaciones> publicacionesList;
-    private List<Publicaciones> listaFiltrarPublicaciones;
-    private PublicacionesAdapterListener listener;
-    private Publicaciones borrarItem;
+    private List<Puesto> puestoList;
+    private List<Puesto> listaFiltrarPuesto;
+    private PuestoAdapterListener listener;
+    private Puesto borrarItem;
 
     /// Clase de ViewHolder
     public class MyViewHolder extends RecyclerView.ViewHolder {
         public TextView txtTitulo_Publicacion, txtDescripcion_Publicacion;
         //two layers
         public RelativeLayout viewForeground;
-        public Button editar, borrar;
 
 
         public MyViewHolder(View view) {
@@ -44,21 +40,21 @@ public class PublicacionesAdapter extends RecyclerView.Adapter<PublicacionesAdap
                 @Override
                 public void onClick(View view) {
                     // send selected contact in callback
-                    listener.onContactSelected(listaFiltrarPublicaciones.get(getAdapterPosition()));
+                    listener.onContactSelected(listaFiltrarPuesto.get(getAdapterPosition()));
                 }
             });
         }
     } /// Termina clase ViewHolder
 
-    public PublicacionesAdapter(List<Publicaciones> publicacionesList, PublicacionesAdapterListener listener) {
-        this.publicacionesList = publicacionesList;
+    public PuestoAdapter(List<Puesto> puestoList, PuestoAdapterListener listener) {
+        this.puestoList = puestoList;
         this.listener = listener;
         //init filter
-        this.listaFiltrarPublicaciones = publicacionesList;
+        this.listaFiltrarPuesto = puestoList;
     }
 
     @Override
-    public PublicacionesAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public PuestoAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_list_pub, parent, false);
 
@@ -66,23 +62,23 @@ public class PublicacionesAdapter extends RecyclerView.Adapter<PublicacionesAdap
     }
 
     @Override
-    public void onBindViewHolder(PublicacionesAdapter.MyViewHolder holder, int position) {
+    public void onBindViewHolder(PuestoAdapter.MyViewHolder holder, int position) {
         // rendering view
-        final Publicaciones publicaciones = listaFiltrarPublicaciones.get(position);
-        holder.txtTitulo_Publicacion.setText(publicaciones.getTitulo_publicacion());
-        holder.txtDescripcion_Publicacion.setText(publicaciones.getDescripcion_publicacion());
+        final Puesto puesto = listaFiltrarPuesto.get(position);
+        holder.txtTitulo_Publicacion.setText(puesto.getNombre());
+        holder.txtDescripcion_Publicacion.setText(puesto.getArea());
     }
 
     @Override
     public int getItemCount() {
-        return listaFiltrarPublicaciones.size();
+        return listaFiltrarPuesto.size();
     }
 
     public void removeItem(int position) {
-        borrarItem = listaFiltrarPublicaciones.remove(position);
-        Iterator<Publicaciones> iter = publicacionesList.iterator();
+        borrarItem = listaFiltrarPuesto.remove(position);
+        Iterator<Puesto> iter = puestoList.iterator();
         while (iter.hasNext()) {
-            Publicaciones aux = iter.next();
+            Puesto aux = iter.next();
             if (borrarItem.equals(aux))
                 iter.remove();
         }
@@ -92,18 +88,18 @@ public class PublicacionesAdapter extends RecyclerView.Adapter<PublicacionesAdap
 
     public void restoreItem(int position) {
 
-        if (listaFiltrarPublicaciones.size() == publicacionesList.size()) {
-            listaFiltrarPublicaciones.add(position, borrarItem);
+        if (listaFiltrarPuesto.size() == puestoList.size()) {
+            listaFiltrarPuesto.add(position, borrarItem);
         } else {
-            listaFiltrarPublicaciones.add(position, borrarItem);
-            publicacionesList.add(borrarItem);
+            listaFiltrarPuesto.add(position, borrarItem);
+            puestoList.add(borrarItem);
         }
         notifyDataSetChanged();
         // notify item added by position
         notifyItemInserted(position);
     }
 
-    public interface PublicacionesAdapterListener {
-        void onContactSelected(Publicaciones publicaciones);
+    public interface PuestoAdapterListener {
+        void onContactSelected(Puesto puesto);
     }
 }

@@ -44,7 +44,7 @@ public class SkillsActivity extends AppCompatActivity
     private CoordinatorLayout coordinatorLayout;
     private FloatingActionButton agregar;
 
-    String apiUrl = "http://192.168.1.3:8080/JobApp_Web/SkillServlet?";
+    String apiUrl = "http://10.20.106.126:8080/JobApp_Web/SkillServlet?";
     String apiUrlTemporal = "";
 
     String USER_ID;

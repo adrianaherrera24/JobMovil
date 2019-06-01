@@ -315,6 +315,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         int IS_PRIMARY = 1;
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent a = new Intent(this, LoginActivity.class);
+        a.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(a);
+        super.onBackPressed();
+    }
+
     /**
      * Represents an asynchronous login/registration task used to authenticate
      * the user.

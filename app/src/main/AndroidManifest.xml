@@ -14,9 +14,13 @@
         android:theme="@style/AppTheme.NoActionBar"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".Activity.PuestoActivity"
+            android:label="@string/title_activity_puesto"
+            android:theme="@style/AppTheme.NoActionBar.NoActionBar"></activity>
+        <activity
             android:name=".Activity.PerfilActivity"
             android:label="@string/title_activity_perfil"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".Activity.ActAgrReferenciaActivity"
             android:label="@string/title_activity_act_agr_referencia"

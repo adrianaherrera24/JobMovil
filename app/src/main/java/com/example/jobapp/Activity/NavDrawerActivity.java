@@ -28,7 +28,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.jobapp.Adapter.PublicacionesAdapter;
+import com.example.jobapp.Adapter.PuestoAdapter;
 import com.example.jobapp.LogicaNegocio.Publicaciones;
+import com.example.jobapp.LogicaNegocio.Puesto;
 import com.example.jobapp.R;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -41,16 +43,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NavDrawerActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, PublicacionesAdapter.PublicacionesAdapterListener {
+        implements NavigationView.OnNavigationItemSelectedListener, PuestoAdapter.PuestoAdapterListener {
 
     private RecyclerView mRecyclerView;
-    private PublicacionesAdapter mAdapter;
-    private List<Publicaciones> publicacionesList;
+    private PuestoAdapter mAdapter;
+    private List<Puesto> puestoList;
     private CoordinatorLayout coordinatorLayout;
     private FloatingActionButton agregar;
     private Button editar, borrar;
 
-    String apiUrl = "http://192.168.1.12:8080/JobApp_Web/PuestoUsuarioServlet?";
+    String apiUrl = "http://10.20.106.126:8080/JobApp_Web/PuestoUsuarioServlet?";
     String apiUrlTemporal = "";
     String USER_ID;
 
@@ -74,8 +76,8 @@ public class NavDrawerActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         mRecyclerView = findViewById(R.id.recycler_pub);
-        publicacionesList = new ArrayList<>();
-        mAdapter = new PublicacionesAdapter(publicacionesList, this);
+        puestoList = new ArrayList<>();
+        mAdapter = new PuestoAdapter(puestoList, this);
         coordinatorLayout = findViewById(R.id.coordinator_layout_pub);
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
@@ -88,15 +90,6 @@ public class NavDrawerActivity extends AppCompatActivity
         apiUrlTemporal = apiUrl + "opc=1&usuario=" + USER_ID;
         MyAsyncTasks myAsyncTasks = new MyAsyncTasks();
         myAsyncTasks.execute();
-
-        // Boton
-        agregar = findViewById(R.id.agregar_pub);
-        agregar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                agregarPublicacion();
-            }
-        });
 
         // Receive the Carrera sent by AddUpdCarreraActivity
         checkIntentInformation();
@@ -207,8 +200,8 @@ public class NavDrawerActivity extends AppCompatActivity
     }
 
     @Override
-    public void onContactSelected(Publicaciones pub) { //TODO get the select item of recycleView
-        Toast.makeText(getApplicationContext(), "Selected: " + pub.getUsuario(), Toast.LENGTH_LONG).show();
+    public void onContactSelected(Puesto pub) { //TODO get the select item of recycleView
+        Toast.makeText(getApplicationContext(), "Selected: " + pub.getNombre(), Toast.LENGTH_LONG).show();
     }
 
     public void abrirLogin() {
@@ -250,13 +243,13 @@ public class NavDrawerActivity extends AppCompatActivity
     private void checkIntentInformation() {
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            Publicaciones aux;
-            aux = (Publicaciones) getIntent().getSerializableExtra("agregarPublicacion");
+            Puesto aux;
+            aux = (Puesto) getIntent().getSerializableExtra("agregarPuesto");
             if (aux == null) {
-                aux = (Publicaciones) getIntent().getSerializableExtra("editarPublicacion");
+                aux = (Puesto) getIntent().getSerializableExtra("editarPuesto");
                 if (aux != null) {
                     //found an item that can be updated
-                    boolean founded = false;
+                   /* boolean founded = false;
                     for (Publicaciones pub : publicacionesList) {
                         if (pub.getUsuario().equals(aux.getUsuario())) {
                             pub.setTitulo_publicacion(aux.getTitulo_publicacion());
@@ -270,12 +263,12 @@ public class NavDrawerActivity extends AppCompatActivity
                         Toast.makeText(getApplicationContext(), "Editado correctamente!", Toast.LENGTH_LONG).show();
                     } else {
                         Toast.makeText(getApplicationContext(), "No encontrado!", Toast.LENGTH_LONG).show();
-                    }
+                    }*/
                 }
             } else {
                 //found a new Alumno Object
-                publicacionesList.add(aux);
-                Toast.makeText(getApplicationContext(), "Agregado correctamente!", Toast.LENGTH_LONG).show();
+                //publicacionesList.add(aux);
+                //Toast.makeText(getApplicationContext(), "Agregado correctamente!", Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -357,9 +350,9 @@ public class NavDrawerActivity extends AppCompatActivity
 
                 puestoList = puestolArrayList;
                 mAdapter = new PuestoAdapter(puestoList, NavDrawerActivity.this);
-                coordinatorLayout = findViewById(R.id.coordinator_layout_skill);
+                coordinatorLayout = findViewById(R.id.coordinator_layout_pub);
 
-                mRecyclerView = findViewById(R.id.recycler_skill);
+                mRecyclerView = findViewById(R.id.recycler_pub);
 
                 RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
                 mRecyclerView.setLayoutManager(mLayoutManager);
@@ -367,7 +360,7 @@ public class NavDrawerActivity extends AppCompatActivity
                 mRecyclerView.addItemDecoration(new DividerItemDecoration(NavDrawerActivity.this, DividerItemDecoration.VERTICAL));
                 mRecyclerView.setAdapter(mAdapter);
 
-                Log.w("ArrayList", skillArrayList.toString());
+//                Log.w("ArrayList", puestolArrayList.toString());
 
             } catch (Exception e) {
                 e.printStackTrace();
